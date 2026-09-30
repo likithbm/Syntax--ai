@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Syntax AI · Diagram to Code</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">{ }</span>
+      <div>
+        <h1>Syntax AI</h1>
+        <p class="tagline">Diagram to code · runs entirely on your machine</p>
+      </div>
+    </div>
+    <div id="ai-status" class="status status-checking" role="status" aria-live="polite" title="Checking Ollama…">
+      <span class="dot"></span><span id="ai-status-text">Checking AI…</span>
+    </div>
+  </header>
+
+  <main class="layout">
+    <!-- ============ LEFT: input ============ -->
+    <section class="col-input" aria-label="Input">
+      <div class="card">
+        <h2>1 · Diagram</h2>
+
+        <div id="dropzone" class="dropzone" tabindex="0" role="button"
+             aria-label="Upload a diagram image. Click, press Enter, or drop a file here.">
+          <div id="dz-empty" class="dz-empty">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 16V4m0 0l-4 4m4-4l4 4M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3"/></svg>
+            <p><strong>Drop a diagram here</strong> or click to browse</p>
+            <p class="hint">PNG, JPG or WEBP · flowchart, UML class diagram or architecture diagram</p>
+          </div>
+          <img id="preview" class="preview" alt="Preview of the uploaded diagram" hidden>
+        </div>
+        <input id="file-input" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+
+        <div class="row">
+          <button id="btn-upload" class="btn btn-secondary" type="button">Upload Diagram</button>
+          <span id="file-name" class="file-name"></span>
+        </div>
+
+        <div class="samples">
+          <span class="hint">Try a sample:</span>
+          <button class="chip" type="button" data-sample="even_odd.png">Even / Odd</button>
+          <button class="chip" type="button" data-sample="sum_loop.png">Sum loop</button>
+          <button class="chip" type="button" data-sample="grade_check.png">Pass / Fail</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>2 · Options</h2>
+        <label for="requirement">Requirement <span class="hint">(optional note, saved as a comment in the code)</span></label>
+        <textarea id="requirement" rows="3" maxlength="500" placeholder="e.g. Program for the CS101 lab"></textarea>
+
+        <label for="language">Language</label>
+        <select id="language">
+          <option value="python">Python</option>
+          <option value="c">C</option>
+          <option value="cpp">C++</option>
+          <option value="java">Java</option>
+          <option value="javascript">JavaScript</option>
+        </select>
+
+        <div class="row actions">
+          <button id="btn-generate" class="btn btn-primary" type="button" disabled>Generate Code</button>
+          <button id="btn-clear" class="btn btn-ghost" type="button">Clear</button>
+        </div>
+      </div>
+
+      <div id="progress" class="card progress" hidden aria-live="polite">
+        <div class="progress-head">
+          <strong id="progress-msg">Working…</strong>
+          <span id="progress-time" class="mono">0s</span>
+        </div>
+        <div class="bar"><div class="bar-fill"></div></div>
+        <ol id="progress-steps" class="steps"></ol>
+        <p class="hint">The diagram is sent to the vision model once. Everything after that is generated locally.</p>
+      </div>
+
+      <div id="error" class="banner banner-error" role="alert" hidden></div>
+    </section>
+
+    <!-- ============ RIGHT: results ============ -->
+    <section class="col-output" aria-label="Results">
+      <div id="empty-results" class="card empty-results">
+        <p>Upload a diagram and press <strong>Generate Code</strong>.</p>
+        <p class="hint">The extracted logic, generated code, security analysis and verification will appear here.</p>
+      </div>
+
+      <div id="results" hidden>
+        <div class="card">
+          <h2>Extracted Logic <span id="diagram-type" class="tag"></span></h2>
+          <pre id="logic" class="logic"></pre>
+          <details><summary>Structured data (JSON)</summary><pre id="logic-json" class="logic small"></pre></details>
+          <ul id="warnings" class="warnings"></ul>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h2>Generated Code <span id="code-lang" class="tag"></span></h2>
+            <div class="row">
+              <button id="btn-copy" class="btn btn-secondary btn-sm" type="button">Copy Code</button>
+              <button id="btn-download" class="btn btn-secondary btn-sm" type="button">Download Code</button>
+            </div>
+          </div>
+          <div class="codewrap"><div id="code-file" class="code-file mono"></div><pre id="code" class="code"><code></code></pre></div>
+        </div>
+
+        <div class="card">
+          <h2>Security Analysis</h2>
+          <p class="hint" id="sec-label">Heuristic security analysis (pattern-based; not a professional SAST tool)</p>
+          <div id="sec-body"></div>
+        </div>
+
+        <div class="card">
+          <h2>Verification</h2>
+          <div id="ver-body"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <section class="history card" aria-label="History">
+    <div class="card-head">
+      <h2>History</h2>
+      <button id="btn-clear-history" class="btn btn-ghost btn-sm" type="button">Clear history</button>
+    </div>
+    <div id="history-list" class="history-list"><p class="hint">No saved results yet.</p></div>
+  </section>
+
+  <footer class="footer">Syntax AI · local vision model via Ollama · no cloud, no API keys</footer>
+  <script src="app.js"></script>
+</body>
+</html>
